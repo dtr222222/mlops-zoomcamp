@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # 服务一：训练容器
+  trainer:
+    build:
+      context: .
+      dockerfile: training/Dockerfile.train
+    network_mode: "host"
+    environment:
+      - PREFECT_API_URL=http://127.0.0.1:4200/api
+    volumes:
+      - ./mlflow.db:/app/mlflow.db
+      - ./mlruns:/app/mlruns
+      - ./data:/app/data
+
+  # 服务二：批处理预测容器
+  batch_predictor:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile.deploy
+    network_mode: "host"
+    environment:
+      - PREFECT_API_URL=http://127.0.0.1:4200/api
+    volumes:
+      # 跑本地 docker命令时才启用，调用 prefect时不启用。
+      - ./mlflow.db:/app/mlflow.db
+      - ./mlruns:/app/mlruns
+      - ./data:/app/data
+      - ./output:/app/output
+      - ./mlruns:/home/dongenxi/mlops-zoomcamp/04-deployment/project/mlruns
+    command: python deployment/batch_predict.py --type yellow --year 2021 --month 1
+
+  # 服务三：在线 API 容器
+  api_predictor:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile.deploy
+    ports:
+      - "9696:9696"
+    volumes:
+      - ./mlflow.db:/app/mlflow.db
+      - ./mlruns:/app/mlruns
+      - ./mlruns:/home/dongenxi/mlops-zoomcamp/04-deployment/project/mlruns
+    command: gunicorn --bind=0.0.0.0:9696 deployment.api_predict:app

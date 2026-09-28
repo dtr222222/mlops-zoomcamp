@@ -1,0 +1,6 @@
+FROM agrigorev/zoomcamp-model:mlops-2024-3.10.13-slim
+WORKDIR /app
+COPY requirements.txt /app/
+RUN pip install -r requirements.txt
+COPY starter.py /app/
+CMD ["python", "starter.py", "--year", "2023", "--month", "5"]
