@@ -31,4 +31,4 @@ jobs:
 
       - name: Run Docker Container
         working-directory: 06-best-practices/code/review
-        run: docker run --rm review-app:c1
+        run: docker run --rm review-app:ci
