@@ -28,3 +28,7 @@ jobs:
       - name: Build Docker image
         working-directory: 06-best-practices/code/review
         run: docker build -t review-app:ci .
+
+      - name: Run Docker Container
+        working-directory: 06-best-practices/code/review
+        run: docker run --rm review-app:c1
