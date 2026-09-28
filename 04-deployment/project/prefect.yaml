@@ -1,0 +1,76 @@
+# Welcome to your prefect.yaml file! You can use this file for storing and managing
+# configuration for deploying your flows. We recommend committing this file to source
+# control along with your flow code.
+
+# Generic metadata about this project
+name: project
+prefect-version: 3.4.25
+
+# build section allows you to manage and build docker images
+build: null
+
+# push section allows you to manage if and how this project is uploaded to remote locations
+push: null
+
+# pull section allows you to provide instructions for cloning this project in remote locations
+pull:
+- prefect.deployments.steps.set_working_directory:
+    directory: /app
+
+# the deployments section allows you to provide configuration for deploying flows
+deployments:
+- name: train
+  version: null
+  tags: []
+  description: Train the model.
+  schedule: {}
+  flow_name: null
+  entrypoint: training/train.py:run
+  parameters: 
+    taxi_type: yellow
+    year: 2021
+    month: 1
+  work_pool:
+    name: zoompool-docker
+    work_queue_name: null
+    job_variables: 
+      image: 'project-trainer:latest'
+      image_pull_policy: 'Never'
+      network_mode: 'host'
+      volumes: 
+        # 挂载本地路径，映射在docker容器中
+        - '/home/dongenxi/mlops-zoomcamp/04-deployment/project/mlflow.db:/app/mlflow.db'
+        - '/home/dongenxi/mlops-zoomcamp/04-deployment/project/mlruns:/app/mlruns'
+        - '/home/dongenxi/mlops-zoomcamp/04-deployment/project/mlruns:/home/dongenxi/mlops-zoomcamp/04-deployment/project/mlruns'
+        - '/home/dongenxi/mlops-zoomcamp/04-deployment/project/data:/app/data'
+      env:
+        PREFECT_API_URL: 'http://127.0.0.1:4200/api'
+
+- name: batch_predict
+  version: null
+  tags: []
+  description: Batch predict.
+  schedule: {}
+  flow_name: null
+  entrypoint: deployment/batch_predict.py:run
+  parameters: 
+    taxi_type: yellow
+    year: 2021
+    month: 1
+  work_pool:
+    name: zoompool-docker
+    work_queue_name: null
+    job_variables: 
+      image: 'project-batch_predictor:latest'
+      image_pull_policy: 'Never'
+      network_mode: 'host'
+      volumes:
+        # prefect运行时会挂在以下路径，在使用 prefect才会启用，执行 docker命令时不启用。
+        - '/home/dongenxi/mlops-zoomcamp/04-deployment/project/mlflow.db:/app/mlflow.db'
+        - '/home/dongenxi/mlops-zoomcamp/04-deployment/project/mlruns:/app/mlruns'
+        - '/home/dongenxi/mlops-zoomcamp/04-deployment/project/mlruns:/home/dongenxi/mlops-zoomcamp/04-deployment/project/mlruns'
+        - '/home/dongenxi/mlops-zoomcamp/04-deployment/project/data:/app/data'
+        - '/home/dongenxi/mlops-zoomcamp/04-deployment/project/output:/app/output'
+      env:
+        # 与 net_mode: 'host'相互配合，告诉容器去哪儿找 Prefect服务器。
+        PREFECT_API_URL: 'http://127.0.0.1:4200/api'

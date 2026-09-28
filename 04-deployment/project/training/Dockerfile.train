@@ -1,0 +1,16 @@
+# python版本
+FROM python:3.9.25-slim
+
+# 工作目录
+WORKDIR /app
+
+# 拷贝文件
+COPY training/requirements.txt .
+RUN pip install  -r requirements.txt
+
+# 把文件夹下的内容都拷贝过来
+COPY common/ /app/common/
+COPY training/ /app/training/
+
+# 运行命令行
+CMD ["python", "training/train.py"]

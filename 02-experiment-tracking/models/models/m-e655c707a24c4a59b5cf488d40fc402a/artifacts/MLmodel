@@ -1,0 +1,22 @@
+artifact_path: /home/dongenxi/mlops-zoomcamp/02-experiment-tracking/mlruns/1/models/m-e655c707a24c4a59b5cf488d40fc402a/artifacts
+flavors:
+  python_function:
+    data: model.xgb
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.xgboost
+    python_version: 3.9.25
+  xgboost:
+    code: null
+    data: model.xgb
+    model_class: xgboost.core.Booster
+    model_format: xgb
+    xgb_version: 2.1.4
+mlflow_version: 3.1.4
+model_id: m-e655c707a24c4a59b5cf488d40fc402a
+model_size_bytes: 8239414
+model_uuid: m-e655c707a24c4a59b5cf488d40fc402a
+prompts: null
+run_id: 665d3838e16a404e93c419edf868805e
+utc_time_created: '2026-08-31 04:32:53.251791'
