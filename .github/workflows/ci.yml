@@ -24,3 +24,7 @@ jobs:
       - name: Run tests
         working-directory: 06-best-practices/code/review
         run: pytest -q
+      
+      - name: Build Docker image
+        working-directory: 06-best-practices/code/review
+        run: docker build -t review-app:ci .
