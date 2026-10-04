@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 jobs:
-  test-and-build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -22,9 +22,38 @@ jobs:
           pip install pytest
           pytest -q
 
-      - name: Build Docker image
-        working-directory: 06-best-practices/code/review
-        run: docker build -t review-app:latest .
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # 🚨 你需要在这里加上推送到云镜像仓库的逻辑！
-      # 比如 docker tag + docker push
+      # 🚨 登录 Docker Hub（需要先在 GitHub Secrets 里配置）
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 🚨 构建并推送
+      - name: Build and push Docker image
+        working-directory: 06-best-practices/code/review
+        run: |
+          # 注意：镜像名必须带你的 Docker Hub 用户名，例如 yourname/review-app:latest
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/review-app:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/review-app:latest
+
+  # 第三步：部署（占位符，等你以后有服务器了再在这里写 SSH 远程连接）
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Notice
+        run: |
+          echo "✅ 镜像已成功推送到 Docker Hub！"
+          echo "📌 下一步：请在你的云服务器上运行以下命令更新服务："
+          echo "docker pull ${{ secrets.DOCKER_USERNAME }}/review-app:latest"
+          echo "docker stop review-app || true"
+          echo "docker rm review-app || true"
+          echo "docker run -d -p 8000:8000 --name review-app ${{ secrets.DOCKER_USERNAME }}/review-app:latest"
