@@ -21,6 +21,7 @@ jobs:
         run: pip install pytest
 
       - name: Run tests
+        working-directory: 06-best-practices/code/review
         run: pytest -q
     
   build:
@@ -44,4 +45,3 @@ jobs:
         run: |
          echo "Starting app in Docker..."
          docker run --rm -d -p 8000:8000 review-app:latest
-
