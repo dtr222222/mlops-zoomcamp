@@ -5,9 +5,8 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  test-and-build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,31 +16,15 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: Install pytest
-        run: pip install pytest
-
       - name: Run tests
-        run: pytest -q
-    
-  build:
-      needs: test
-      runs-on: ubuntu-latest
-
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
-
-        - name: Build Docker image
-          run: |
-            cd review
-            docker build -t review-app:latest .
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Deploy container
+        working-directory: 06-best-practices/code/review
         run: |
-         echo "Starting app in Docker..."
-         docker run --rm -d -p 8000:8000 review-app:latest
+          pip install pytest
+          pytest -q
 
+      - name: Build Docker image
+        working-directory: 06-best-practices/code/review
+        run: docker build -t review-app:latest .
+
+      # 🚨 你需要在这里加上推送到云镜像仓库的逻辑！
+      # 比如 docker tag + docker push
