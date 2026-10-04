@@ -18,8 +18,8 @@ jobs:
         with:
           python-version: "3.9"
 
-      - name: Install pytest
-        run: pip install pytest
+      - name: Install pytest and flask
+        run: pip install pytest flask
 
       - name: Run tests
         working-directory: 06-best-practices/code/review
